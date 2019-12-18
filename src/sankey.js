@@ -44,6 +44,7 @@ module.exports = Base.extend("Sankey", {
 					this.on("mouseover",  function(e) { chart.trigger("link:mouseover", e); });
 					this.on("mouseout",   function(e) { chart.trigger("link:mouseout",  e); });
 					this.on("click",      function(e) { chart.trigger("link:click",     e); });
+					this.on("dblclick",      function(e) {chart.trigger("link:dblclick",     e); });
 				},
 
 				"merge": function() {
@@ -52,6 +53,10 @@ module.exports = Base.extend("Sankey", {
 						.style("stroke", colorLinks)
 						.style("stroke-width", function(d) { return Math.max(1, d.dy); })
 						.sort(function(a, b) { return b.dy - a.dy; });
+					if(titleLinks) {
+						this.append("title")
+							.text(titleLinks);
+					}
 				},
 
 				"exit": function() {
@@ -81,6 +86,7 @@ module.exports = Base.extend("Sankey", {
 					this.on("mouseover",  function(e) { chart.trigger("node:mouseover", e); });
 					this.on("mouseout",   function(e) { chart.trigger("node:mouseout",  e); });
 					this.on("click",      function(e) { chart.trigger("node:click",     e); });
+					this.on("dblclick",      function(e) { chart.trigger("node:dblclick",     e); });
 				},
 
 				"merge": function() {
@@ -131,6 +137,15 @@ module.exports = Base.extend("Sankey", {
 				return chart.features.colorLinks(link);
 			} else {
 				return chart.features.colorLinks;
+			}
+		}
+
+		function titleLinks(link) {
+			if (typeof chart.features.titleLinks === "function") {
+				// always expect custom function, there"s no sensible default with d3 scales here
+				return chart.features.titleLinks(link);
+			} else {
+				return chart.features.titleLinks;
 			}
 		}
 	},

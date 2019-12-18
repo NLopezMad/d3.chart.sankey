@@ -1,7 +1,7 @@
 /*!
  * d3.chart.sankey - v0.4.0
  * License: MIT
- * Date: 2017-00-16
+ * Date: 2019-11-18
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -57,7 +57,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint node: true */
@@ -72,9 +72,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Sankey;
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint node: true */
@@ -122,6 +122,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						this.on("mouseover",  function(e) { chart.trigger("link:mouseover", e); });
 						this.on("mouseout",   function(e) { chart.trigger("link:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("link:click",     e); });
+						this.on("dblclick",      function(e) {chart.trigger("link:dblclick",     e); });
 					},
 
 					"merge": function() {
@@ -130,6 +131,10 @@ return /******/ (function(modules) { // webpackBootstrap
 							.style("stroke", colorLinks)
 							.style("stroke-width", function(d) { return Math.max(1, d.dy); })
 							.sort(function(a, b) { return b.dy - a.dy; });
+						if(titleLinks) {
+							this.append("title")
+								.text(titleLinks);
+						}
 					},
 
 					"exit": function() {
@@ -159,6 +164,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						this.on("mouseover",  function(e) { chart.trigger("node:mouseover", e); });
 						this.on("mouseout",   function(e) { chart.trigger("node:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("node:click",     e); });
+						this.on("dblclick",      function(e) { chart.trigger("node:dblclick",     e); });
 					},
 
 					"merge": function() {
@@ -209,6 +215,15 @@ return /******/ (function(modules) { // webpackBootstrap
 					return chart.features.colorLinks(link);
 				} else {
 					return chart.features.colorLinks;
+				}
+			}
+
+			function titleLinks(link) {
+				if (typeof chart.features.titleLinks === "function") {
+					// always expect custom function, there"s no sensible default with d3 scales here
+					return chart.features.titleLinks(link);
+				} else {
+					return chart.features.titleLinks;
 				}
 			}
 		},
@@ -311,15 +326,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/*** IMPORTS FROM imports-loader ***/
 	var d3 = __webpack_require__(2);
@@ -621,9 +636,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = d3.sankey;
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint node: true */
@@ -655,6 +670,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// there is no value property, because we also need to set it on parents
 			chart.features.colorNodes = d3.scale.category20c();
 			chart.features.colorLinks = null; // css styles by default
+			chart.features.titleLinks = null; // css styles by default
 
 			chart.layers.base = chart.base.append("g")
 				.attr("transform", "translate(" + chart.features.margins.left + "," + chart.features.margins.top + ")");
@@ -691,20 +707,30 @@ return /******/ (function(modules) { // webpackBootstrap
 			if (this.data) { this.draw(this.data); }
 
 			return this;
+		},
+
+
+		titleLinks: function(_) {
+			if (!arguments.length) { return this.features.titleLinks; }
+			this.features.titleLinks = _;
+
+			if (this.data) { this.draw(this.data); }
+
+			return this;
 		}
 
 	});
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint node: true */
@@ -718,12 +744,31 @@ return /******/ (function(modules) { // webpackBootstrap
 			var chart = this;
 
 			chart.features.selection = null;
+			chart.features.selectionLocked = false;
 			chart.features.unselectedOpacity = 0.2;
 
 			chart.on("link:mouseover", chart.selection);
 			chart.on("link:mouseout", function() { chart.selection(null); });
+			chart.on("link:dblclick", function(_) {
+				if(!chart.features.selectionLocked) {
+					chart.features.selectionLocked = true;
+					chart.selection(_);
+				} else {
+					chart.features.selectionLocked = false;
+					chart.selection(null);
+				}
+			});
 			chart.on("node:mouseover", chart.selection);
 			chart.on("node:mouseout", function() { chart.selection(null); });
+			chart.on("node:dblclick", function(_) {
+				if(!chart.features.selectionLocked) {
+					chart.features.selectionLocked = true;
+					chart.selection(_);
+				} else {
+					chart.features.selectionLocked = false;
+					chart.selection(null);
+				}
+			});
 
 			// going through the whole draw cycle can be a little slow, so we use
 			// a selection changed event to update existing nodes directly
@@ -743,12 +788,14 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			function updateTransition() {
-				var transition = chart.layers.base.selectAll(".node, .link").transition();
-				if (!chart.features.selection || !chart.features.selection.length) {
-					// short delay for the deselect transition to avoid flicker
-					transition = transition.delay(100);
+				if (!chart.features.selectionLocked) {
+					var transition = chart.layers.base.selectAll(".node, .link").transition();
+					if (!chart.features.selection || !chart.features.selection.length) {
+						// short delay for the deselect transition to avoid flicker
+						transition = transition.delay(100);
+					}
+					update.apply(transition.duration(50));
 				}
-				update.apply(transition.duration(50));
 			}
 		},
 
@@ -773,9 +820,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint node: true */
@@ -849,7 +896,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;

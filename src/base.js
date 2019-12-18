@@ -28,6 +28,7 @@ module.exports = Chart("Sankey.Base", {
 		// there is no value property, because we also need to set it on parents
 		chart.features.colorNodes = d3.scale.category20c();
 		chart.features.colorLinks = null; // css styles by default
+		chart.features.titleLinks = null; // css styles by default
 
 		chart.layers.base = chart.base.append("g")
 			.attr("transform", "translate(" + chart.features.margins.left + "," + chart.features.margins.top + ")");
@@ -61,6 +62,16 @@ module.exports = Chart("Sankey.Base", {
 		this.features.colorLinks = _;
 
 		this.trigger("change:color");
+		if (this.data) { this.draw(this.data); }
+
+		return this;
+	},
+
+
+	titleLinks: function(_) {
+		if (!arguments.length) { return this.features.titleLinks; }
+		this.features.titleLinks = _;
+
 		if (this.data) { this.draw(this.data); }
 
 		return this;

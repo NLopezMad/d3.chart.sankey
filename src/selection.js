@@ -10,12 +10,31 @@ module.exports = Sankey.extend("Sankey.Selection", {
 		var chart = this;
 
 		chart.features.selection = null;
+		chart.features.selectionLocked = false;
 		chart.features.unselectedOpacity = 0.2;
 
 		chart.on("link:mouseover", chart.selection);
 		chart.on("link:mouseout", function() { chart.selection(null); });
+		chart.on("link:dblclick", function(_) {
+			if(!chart.features.selectionLocked) {
+				chart.features.selectionLocked = true;
+				chart.selection(_);
+			} else {
+				chart.features.selectionLocked = false;
+				chart.selection(null);
+			}
+		});
 		chart.on("node:mouseover", chart.selection);
 		chart.on("node:mouseout", function() { chart.selection(null); });
+		chart.on("node:dblclick", function(_) {
+			if(!chart.features.selectionLocked) {
+				chart.features.selectionLocked = true;
+				chart.selection(_);
+			} else {
+				chart.features.selectionLocked = false;
+				chart.selection(null);
+			}
+		});
 
 		// going through the whole draw cycle can be a little slow, so we use
 		// a selection changed event to update existing nodes directly
@@ -35,12 +54,14 @@ module.exports = Sankey.extend("Sankey.Selection", {
 		}
 
 		function updateTransition() {
-			var transition = chart.layers.base.selectAll(".node, .link").transition();
-			if (!chart.features.selection || !chart.features.selection.length) {
-				// short delay for the deselect transition to avoid flicker
-				transition = transition.delay(100);
+			if (!chart.features.selectionLocked) {
+				var transition = chart.layers.base.selectAll(".node, .link").transition();
+				if (!chart.features.selection || !chart.features.selection.length) {
+					// short delay for the deselect transition to avoid flicker
+					transition = transition.delay(100);
+				}
+				update.apply(transition.duration(50));
 			}
-			update.apply(transition.duration(50));
 		}
 	},
 
