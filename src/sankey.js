@@ -42,6 +42,7 @@ module.exports = Base.extend("Sankey", {
 			events: {
 				"enter": function() {
 					this.on("mouseover",  function(e) { chart.trigger("link:mouseover", e); });
+					this.on("mousemove",  function(e) { chart.trigger("link:mousemove", e); });
 					this.on("mouseout",   function(e) { chart.trigger("link:mouseout",  e); });
 					this.on("click",      function(e) { chart.trigger("link:click",     e); });
 				},
@@ -83,6 +84,7 @@ module.exports = Base.extend("Sankey", {
 						.attr("transform", null);
 
 					this.on("mouseover",  function(e) { chart.trigger("node:mouseover", e); });
+					this.on("mousemove",  function(e) { chart.trigger("node:mousemove", e); });
 					this.on("mouseout",   function(e) { chart.trigger("node:mouseout",  e); });
 					this.on("click",      function(e) { chart.trigger("node:click",     e); });
 				},

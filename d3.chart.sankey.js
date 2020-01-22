@@ -120,6 +120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				events: {
 					"enter": function() {
 						this.on("mouseover",  function(e) { chart.trigger("link:mouseover", e); });
+						this.on("mousemove",  function(e) { chart.trigger("link:mousemove", e); });
 						this.on("mouseout",   function(e) { chart.trigger("link:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("link:click",     e); });
 					},
@@ -161,6 +162,7 @@ return /******/ (function(modules) { // webpackBootstrap
 							.attr("transform", null);
 
 						this.on("mouseover",  function(e) { chart.trigger("node:mouseover", e); });
+						this.on("mousemove",  function(e) { chart.trigger("node:mousemove", e); });
 						this.on("mouseout",   function(e) { chart.trigger("node:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("node:click",     e); });
 					},
@@ -751,9 +753,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				if(!chart.features.selectionLocked) {
 					chart.features.selectionLocked = true;
 					chart.selection(_);
+					updateTargetText();
 				} else {
 					chart.features.selectionLocked = false;
 					chart.selection(null);
+					chart.layers.base.selectAll(".node .bold").remove();
 				}
 			});
 			chart.on("node:mouseover", chart.selection);
@@ -762,9 +766,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				if(!chart.features.selectionLocked) {
 					chart.features.selectionLocked = true;
 					chart.selection(_);
+					updateTargetText();
 				} else {
 					chart.features.selectionLocked = false;
 					chart.selection(null);
+					chart.layers.base.selectAll(".node .bold").remove();
 				}
 			});
 
@@ -794,6 +800,29 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 					update.apply(transition.duration(50));
 				}
+			}
+
+			function updateTargetText() {
+				var nodes = chart.layers.base.selectAll(".node");
+				nodes
+					.filter(function (o) {
+						return chart.features.selection.indexOf(o) >= 0 && o.targetLinks.length > 0;
+					})
+					.append("text")
+					.attr("dy", ".35em")
+					.attr("y", function(d) { return d.dy / 2; })
+					.attr("x", chart.features.nodeWidth/2)
+					.attr("class", "bold")
+					.attr("text-anchor", "middle")
+					.text(function (o) {
+						var value = "";
+						chart.features.selection.forEach(function (s) {
+							if(s.target && s.target.name === o.name) {
+								value = s.value;
+							}
+						});
+						return value;
+					});
 			}
 		},
 
