@@ -15,7 +15,7 @@ module.exports = Sankey.extend("Sankey.Selection", {
 
 		chart.on("link:mouseover", chart.selection);
 		chart.on("link:mouseout", function() { chart.selection(null); });
-		chart.on("link:dblclick", function(_) {
+		chart.on("link:click", function(_) {
 			if(!chart.features.selectionLocked) {
 				chart.features.selectionLocked = true;
 				chart.selection(_);
@@ -26,7 +26,7 @@ module.exports = Sankey.extend("Sankey.Selection", {
 		});
 		chart.on("node:mouseover", chart.selection);
 		chart.on("node:mouseout", function() { chart.selection(null); });
-		chart.on("node:dblclick", function(_) {
+		chart.on("node:click", function(_) {
 			if(!chart.features.selectionLocked) {
 				chart.features.selectionLocked = true;
 				chart.selection(_);

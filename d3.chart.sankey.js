@@ -1,7 +1,7 @@
 /*!
  * d3.chart.sankey - v0.4.0
  * License: MIT
- * Date: 2019-11-18
+ * Date: 2020-00-22
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -122,7 +122,6 @@ return /******/ (function(modules) { // webpackBootstrap
 						this.on("mouseover",  function(e) { chart.trigger("link:mouseover", e); });
 						this.on("mouseout",   function(e) { chart.trigger("link:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("link:click",     e); });
-						this.on("dblclick",      function(e) {chart.trigger("link:dblclick",     e); });
 					},
 
 					"merge": function() {
@@ -164,7 +163,6 @@ return /******/ (function(modules) { // webpackBootstrap
 						this.on("mouseover",  function(e) { chart.trigger("node:mouseover", e); });
 						this.on("mouseout",   function(e) { chart.trigger("node:mouseout",  e); });
 						this.on("click",      function(e) { chart.trigger("node:click",     e); });
-						this.on("dblclick",      function(e) { chart.trigger("node:dblclick",     e); });
 					},
 
 					"merge": function() {
@@ -749,7 +747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			chart.on("link:mouseover", chart.selection);
 			chart.on("link:mouseout", function() { chart.selection(null); });
-			chart.on("link:dblclick", function(_) {
+			chart.on("link:click", function(_) {
 				if(!chart.features.selectionLocked) {
 					chart.features.selectionLocked = true;
 					chart.selection(_);
@@ -760,7 +758,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 			chart.on("node:mouseover", chart.selection);
 			chart.on("node:mouseout", function() { chart.selection(null); });
-			chart.on("node:dblclick", function(_) {
+			chart.on("node:click", function(_) {
 				if(!chart.features.selectionLocked) {
 					chart.features.selectionLocked = true;
 					chart.selection(_);
