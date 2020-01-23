@@ -1,7 +1,7 @@
 /*!
  * d3.chart.sankey - v0.4.0
  * License: MIT
- * Date: 2020-00-22
+ * Date: 2020-00-23
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -744,6 +744,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var chart = this;
 
 			chart.features.selection = null;
+			chart.features.selectionTarget = null;
 			chart.features.selectionLocked = false;
 			chart.features.unselectedOpacity = 0.2;
 
@@ -804,24 +805,28 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			function updateTargetText() {
 				var nodes = chart.layers.base.selectAll(".node");
-				nodes
+
+				nodes = nodes
 					.filter(function (o) {
-						return chart.features.selection.indexOf(o) >= 0 && o.targetLinks.length > 0;
-					})
-					.append("text")
+						// return chart.features.selection.indexOf(o) >= 0 && o.targetLinks.length > 0;
+						return chart.features.selection.indexOf(o) >= 0;
+					});
+
+				nodes.append("text")
 					.attr("dy", ".35em")
 					.attr("y", function(d) { return d.dy / 2; })
 					.attr("x", chart.features.nodeWidth/2)
 					.attr("class", "bold")
 					.attr("text-anchor", "middle")
 					.text(function (o) {
-						var value = "";
-						chart.features.selection.forEach(function (s) {
-							if(s.target && s.target.name === o.name) {
-								value = s.value;
-							}
+						if(o === chart.features.selectionTarget) {
+							return chart.features.selectionTarget.value;
+						}
+						var s = chart.features.selection.find(function (s) {
+							return (o.targetLinks.length > 0 && s.target && s.target.name === o.name) ||
+								(o.sourceLinks.length > 0 && s.source && s.source.name === o.name);
 						});
-						return value;
+						return s.value;
 					});
 			}
 		},
@@ -867,11 +872,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// expand selection with connections
 			if (chart.features.selection) {
+				chart.features.selectionTarget = _;
 				chart.features.selection.forEach(function(o) {
 					getConnections(o).forEach(function(p) {
 						chart.features.selection.push(p);
 					});
 				});
+			} else {
+				chart.features.selectionTarget = null;
 			}
 
 			chart.trigger("change:selection");

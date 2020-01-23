@@ -10,6 +10,7 @@ module.exports = Sankey.extend("Sankey.Selection", {
 		var chart = this;
 
 		chart.features.selection = null;
+		chart.features.selectionTarget = null;
 		chart.features.selectionLocked = false;
 		chart.features.unselectedOpacity = 0.2;
 
@@ -70,24 +71,28 @@ module.exports = Sankey.extend("Sankey.Selection", {
 
 		function updateTargetText() {
 			var nodes = chart.layers.base.selectAll(".node");
-			nodes
+
+			nodes = nodes
 				.filter(function (o) {
-					return chart.features.selection.indexOf(o) >= 0 && o.targetLinks.length > 0;
-				})
-				.append("text")
+					// return chart.features.selection.indexOf(o) >= 0 && o.targetLinks.length > 0;
+					return chart.features.selection.indexOf(o) >= 0;
+				});
+
+			nodes.append("text")
 				.attr("dy", ".35em")
 				.attr("y", function(d) { return d.dy / 2; })
 				.attr("x", chart.features.nodeWidth/2)
 				.attr("class", "bold")
 				.attr("text-anchor", "middle")
 				.text(function (o) {
-					var value = "";
-					chart.features.selection.forEach(function (s) {
-						if(s.target && s.target.name === o.name) {
-							value = s.value;
-						}
+					if(o === chart.features.selectionTarget) {
+						return chart.features.selectionTarget.value;
+					}
+					var s = chart.features.selection.find(function (s) {
+						return (o.targetLinks.length > 0 && s.target && s.target.name === o.name) ||
+							(o.sourceLinks.length > 0 && s.source && s.source.name === o.name);
 					});
-					return value;
+					return s.value;
 				});
 		}
 	},

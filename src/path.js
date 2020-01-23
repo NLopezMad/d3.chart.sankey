@@ -14,11 +14,14 @@ module.exports = Selection.extend("Sankey.Path", {
 
 		// expand selection with connections
 		if (chart.features.selection) {
+			chart.features.selectionTarget = _;
 			chart.features.selection.forEach(function(o) {
 				getConnections(o).forEach(function(p) {
 					chart.features.selection.push(p);
 				});
 			});
+		} else {
+			chart.features.selectionTarget = null;
 		}
 
 		chart.trigger("change:selection");
